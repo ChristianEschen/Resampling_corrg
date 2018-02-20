@@ -4,7 +4,7 @@ import os
 from argparse import ArgumentParser
 from CSI2DICOM_func import CSI_2_DCM
 from showresampling_func import showresampling
-
+from generate_dicom_func import generate_dic
 # Inputs
 parser = ArgumentParser(description="ikjMatrix multiplication")
 parser.add_argument("-var_file", dest="var_PATH", required=True,
@@ -113,4 +113,8 @@ showresampling(PET_resample_CSI_raw)
 
 print('DONE show Resampling')
 
+pet_dicom="pseudo_PET_DICOM_res_.dcm"
+generate_dic(PET_resample_CSI_raw,CSIdicom,pet_dicom)
+
+print('done generate pet_dicom')
 
