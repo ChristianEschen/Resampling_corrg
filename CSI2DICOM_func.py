@@ -149,6 +149,8 @@ def CSI_2_DCM(MRI_PATH,CSI_PATH,output):
     R[0:3,1] = MheaderORG.ImageOrientationPatient[3:6]
     R[0:3,2] = np.cross(MheaderORG.ImageOrientationPatient[0:3],MheaderORG.ImageOrientationPatient[3:6])
     R[3,3] = 1
+    R2=numpy.copy(R)
+
     #print('R',R,MheaderORG.ImageOrientationPatient)
     nCols = MheaderORG.Columns
     nRows= MheaderORG.Rows
@@ -158,89 +160,41 @@ def CSI_2_DCM(MRI_PATH,CSI_PATH,output):
     #print('a',a,a.shape)
     j=np.matlib.repmat(a,1, nCols)
 
+
+    cent= np.array((i[nRows//2,nCols//2],j[nRows//2,nCols//2],0,1))
     M = R;
     M[0:3,0] = R[0:3,0] * MheaderORG.PixelSpacing[1];
     M[0:3,1] = R[0:3,1] * MheaderORG.PixelSpacing[0];
     M[0:3,3] = np.transpose(MheaderORG.ImagePositionPatient)
 
     i_new = np.reshape(np.transpose(i),(1,m))
-    print('i_new',i_new.shape,i_new[0][509:514])
+    #print('i_new',i_new.shape,i_new[0][509:514])
     #time.sleep(999999)
     j_new= np.reshape(np.transpose(j),(1,m))
-    print('j_new',j_new.shape,j_new[0][0:10])
+    #print('j_new',j_new.shape,j_new[0][0:10])
     zeross=np.zeros((1,m))
     oness=np.ones((1,m))
     imageCoordinates = np.concatenate((i_new,j_new,zeross,oness),axis=0)
     patientCoordinates = np.matmul(M,imageCoordinates)
 
-
-
     # Estimate center of mass
-    center_of_mass = np.sum(patientCoordinates,1)/m
-    center_of_mass = np.squeeze(center_of_mass[0:3])
-    print('center_of_mass',center_of_mass)
-    #print('([coords[0,(MheaderORG.Columns-1)/2+1]',coords[0,(MheaderORG.Columns-1)/2+1])
-    
-    
-    ## Extract FOV i world coordiantes
-    [Xq1,Yq1,Zq1]=np.meshgrid(np.linspace(center_of_mass[0]-np.divide(FOV[0],2),center_of_mass[0]+np.divide(FOV[0],2),matrix_dim[0]),
-    np.linspace(center_of_mass[1]-np.divide(FOV[1],2),center_of_mass[1]+np.divide(FOV[1],2),matrix_dim[1]),np.linspace(center_of_mass[2]-np.divide(FOV[2],2),center_of_mass[2]+np.divide(FOV[2],2),matrix_dim[1]))
+    cent1=np.matmul(M,cent)
 
-    #print('Xq1START AND END',Xq1[0][0][0],Xq1[-1][-1][-1])
-    #print('Yq1START AND END',Yq1[0][0][0],Yq1[-1][-1][-1])
-    #print('Yq1START AND END',Zq1[0][0][0],Zq1[-1][-1][-1])
-    #print('IPP_MR',MheaderORG.ImagePositionPatient)
-    #print('IPP',IPP)
-    #print('IPP_cal_x',np.array(MheaderORG.PixelSpacing[0])/2+Xq1[0][0][0])
-    #print('IPP_cal_y',np.array(MheaderORG.PixelSpacing[1])/2+Yq1[0][0][0])
-    #print('IPP_cal_z',(Zq1[0][0][0]+Zq1[-1][-1][-1])/2)
+    # Estimate IPP using the center
 
-    #print('matrix_dim[1])',int(matrix_dim[1]))
     i=np.matlib.repmat(np.array(range(0,int(matrix_dim[1]))),int(matrix_dim[0]),1)
     a=np.expand_dims(np.transpose(np.array(range(0,int(matrix_dim[0])))),1)
     j=np.matlib.repmat(a,1, matrix_dim[1])
+    i2=np.array((i[matrix_dim[0]//2,matrix_dim[1]//2],j[matrix_dim[0]/2,matrix_dim[1]//2],0,1))
 
-    #print('MheaderORG.ImagePositionPatient',MheaderORG.ImagePositionPatient)
-    #print('center_of_mass',list(center_of_mass))
-    M = R;
-    M[0:3,0] = R[0:3,0] * FOV[0]/matrix_dim[0];
-    M[0:3,1] = R[0:3,1] * FOV[1]/matrix_dim[1];
-    M[0:3,3] = np.transpose(list(center_of_mass))
-    
-    i_new = np.reshape(np.transpose(i),(1,int(matrix_dim[0]*matrix_dim[1])))
-    j_new= np.reshape(np.transpose(j),(1,int(matrix_dim[0]*matrix_dim[1])))
-    zeross=np.zeros((1,int(matrix_dim[0]*matrix_dim[1])))
-    oness=np.ones((1,int(matrix_dim[0]*matrix_dim[1])))
-    imageCoordinates= np.concatenate((i_new ,j_new ,oness,zeross),axis=0)
-    patientCoordinates = np.matmul(M,imageCoordinates)
-    #print('patientCoordinates',np.amax(patientCoordinates,1)+np.amax(patientCoordinates,1)/2)
-    #time.sleep(9999)
- 
- # OLD###################################################
-    # Calculate center of mass
+    x1= cent1[0]-i2[0]*R2[0,0]*FOV[0]/matrix_dim[0]-R2[0,1]*FOV[1]/matrix_dim[1]*i2[1]
+    x2= cent1[1]-i2[0]*R2[1,0]*FOV[0]/matrix_dim[0]-R2[1,1]*FOV[1]/matrix_dim[1]*i2[1]
+    x3= cent1[2]-i2[0]*R2[2,0]*FOV[0]/matrix_dim[0]-R2[2,1]*FOV[1]/matrix_dim[0]*i2[1]
 
-    #xc=np.divide(np.sum(Xq1[1,:,1]),matrix_dim[0])
-    #yc=np.divide(np.sum(Yq1[:,1,1]),matrix_dim[1])
-    #zc=np.divide(np.sum(Zq1[1,1,:]),matrix_dim[1])
-
-    #xt=np.transpose(Xq1[1,:,1])-xc
-    #yt=np.transpose(Yq1[:,1,1])-yc
-    #zt=np.transpose(Zq1[1,1,:])-zc
-
-
-    #rota=np.dot(R[0:3,0:3],np.row_stack((xt,yt,zt)))
-    #rota2=np.array([np.matlib.repmat(xc,int(matrix_dim[0]),1),
-    #                np.matlib.repmat(yc,int(matrix_dim[1]),1),
-    #np.matlib.repmat(zc,int(matrix_dim[1]),1)])
-
-    #rota2=np.squeeze(rota2, axis=(2,))#.shape
-    #rota2=rota+rota2
-    ##################################################
-    IPP_x=np.array(MheaderORG.PixelSpacing[0])/2+Xq1[0][0][0]
-    IPP_y = np.array(MheaderORG.PixelSpacing[1])/2+Yq1[0][0][0]
-    IPP_z = (Zq1[0][0][0]+Zq1[-1][-1][-1])/2
-    IPP_cal=np.array((IPP_x,IPP_y,IPP_z))
+    IPP_cal=np.array((x1,x2,x3))
     result=np.allclose(IPP, IPP_cal)
+    print('IPP',IPP_cal,IPP,cent1)
+    #time.sleep(99999)
     if result is None:
         print("########################################################################################")
         print("WARNING - No correspondence between calculated ImagePositioPatient and readed ImagePositionPaiten")

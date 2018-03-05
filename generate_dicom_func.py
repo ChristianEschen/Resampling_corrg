@@ -13,7 +13,7 @@ from dicom.UID import UID, generate_uid, pydicom_root_UID, InvalidUID
 from argparse import ArgumentParser
 import os.path
 
-def generate_dic(PETraw_path,dicom_path,pet_dicom):
+def generate_dic(PETraw_path,csi_dicom_path,pet_dicom):
 
 #parser = ArgumentParser(description="ikjMatrix multiplication")
 #parser.add_argument("-ResampledPETrawpath", dest="PETraw_path", required=True,
