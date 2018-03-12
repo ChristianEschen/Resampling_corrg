@@ -42,6 +42,12 @@ CSI_file = "CSI"
 cmd = "dcm2mnc {0}  -dname '' -fname {1} . -usecoordinates -clobber".format(CSIdicom,CSI_file)
 os.system(cmd)
 
+# Convert CSI header to MINC
+MRI_file = "MRI"
+
+cmd = "dcm2mnc {0}  -dname '' -fname {1} . -usecoordinates -clobber".format(flat_list[1],MRI_file)
+os.system(cmd)
+
 print('DONE converting CSI to minc')
 ############################################ Resampling ###################################################
 # Resample PET to CSI
