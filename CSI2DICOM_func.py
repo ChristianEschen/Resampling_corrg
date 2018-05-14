@@ -8,7 +8,7 @@ Created on Wed Feb 22 20:27:24 2017
 import numpy as np
 import numpy.matlib
 import re
-import pydicom
+import dicom
 from operator import truediv
 import copy
 from argparse import ArgumentParser
