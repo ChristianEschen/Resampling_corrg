@@ -184,7 +184,7 @@ def CSI_2_DCM(MRI_PATH,CSI_PATH,output):
 
     i=np.matlib.repmat(np.array(range(0,int(matrix_dim[1]))),int(matrix_dim[0]),1)
     a=np.expand_dims(np.transpose(np.array(range(0,int(matrix_dim[0])))),1)
-    j=np.matlib.repmat(a,1, matrix_dim[1])
+    j=np.matlib.repmat(a,int(1), int(matrix_dim[1]))
     i2=np.array((i[matrix_dim[0]//2,matrix_dim[1]//2],j[matrix_dim[0]/2,matrix_dim[1]//2],0,1))
 
     x1= cent1[0]-i2[0]*R2[0,0]*FOV[0]/matrix_dim[0]-R2[0,1]*FOV[1]/matrix_dim[1]*i2[1]
