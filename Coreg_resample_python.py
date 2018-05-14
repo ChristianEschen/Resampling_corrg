@@ -3,7 +3,7 @@
 import os
 from argparse import ArgumentParser
 from CSI2DICOM_func import CSI_2_DCM
-from showresampling_func import showresampling
+#from showresampling_func import showresampling
 from generate_dicom_func import generate_dic
 # Inputs
 parser = ArgumentParser(description="ikjMatrix multiplication")
@@ -108,10 +108,10 @@ PET_resample_CSI_raw="PET_resampled_CSI_raw.raw"
 cmd="minctoraw {0} -nonormalize -double > {1}".format(PET_resample_CSI,PET_resample_CSI_raw)
 os.system(cmd)
 
-print('DONE converting to raw')
-showresampling(PET_resample_CSI_raw)
+#print('DONE converting to raw')
+#showresampling(PET_resample_CSI_raw)
 
-print('DONE show Resampling')
+#print('DONE show Resampling')
 
 pet_dicom="pseudo_PET_DICOM_res_.dcm"
 generate_dic(PET_resample_CSI_raw,CSIdicom,pet_dicom)
